@@ -12,11 +12,11 @@ const HandTrack = () => {
   const webCamRef = useRef(null);
   const canvasRef = useRef(null);
 
-  let videoWidth = null;
-  let videoHeight = null;
   let history = useHistory();
 
-  const onResults = (results) => {
+  const onResults = useCallback((results) => {
+    let videoWidth = null;
+    let videoHeight = null;
     if (webCamRef != null) {
       videoWidth = webCamRef.current.video.videoWidth;
       videoHeight = webCamRef.current.video.videoHeight;
@@ -49,7 +49,7 @@ const HandTrack = () => {
       }
     }
     canvasCtx.restore();
-  };
+  }, []);
 
   useEffect(() => {
     if (isComponentMounted.current) {
@@ -85,43 +85,13 @@ const HandTrack = () => {
     return () => {
       isComponentMounted.current = false;
     };
-  }, []);
-
-  //   const loadCam = useCallback(() => {
-  //     let camera = null;
-  //     const hands = new Hands({
-  //       locateFile: (file) => {
-  //         return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-  //       },
-  //     });
-
-  //     hands.setOptions({
-  //       maxNumHands: 1,
-  //       minDetectionConfidence: 0.75,
-  //       minTrackingConfidence: 0.7,
-  //     });
-
-  //     hands.onResults(onResults);
-
-  //     if (
-  //       typeof webCamRef.current !== "undefined" &&
-  //       webCamRef.current !== null
-  //     ) {
-  //       camera = new cam.Camera(webCamRef.current.video, {
-  //         onFrame: async () => {
-  //           await hands.send({ image: webCamRef.current.video });
-  //         },
-  //         width: 360,
-  //         height: 640,
-  //       });
-  //       camera.start();
-  //     }
-  //   }, []);
+  }, [onResults]);
 
   const gotoBack = useCallback(() => {
     webCamRef.current.video.pause();
     history.push("/");
   }, [webCamRef, history]);
+
   return (
     <>
       <div className="camContainer">
