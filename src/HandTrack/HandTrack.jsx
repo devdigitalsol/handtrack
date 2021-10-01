@@ -16,7 +16,9 @@ const HandTrack = () => {
   const videoConstraints = {
     width: 360,
     height: 640,
-    facingMode: "environment",
+    facingMode: {
+      exact: "environment",
+    },
   };
 
   const onResults = useCallback((results) => {
