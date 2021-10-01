@@ -8,6 +8,7 @@ import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
 import { useHistory } from "react-router-dom";
 
 const HandTrack = () => {
+  const isComponentMounted = useRef(true);
   const webCamRef = useRef(null);
   const canvasRef = useRef(null);
 
@@ -51,35 +52,71 @@ const HandTrack = () => {
   };
 
   useEffect(() => {
-    let camera = null;
-    const hands = new Hands({
-      locateFile: (file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-      },
-    });
-
-    hands.setOptions({
-      maxNumHands: 1,
-      minDetectionConfidence: 0.75,
-      minTrackingConfidence: 0.7,
-    });
-
-    hands.onResults(onResults);
-
-    if (
-      typeof webCamRef.current !== "undefined" &&
-      webCamRef.current !== null
-    ) {
-      camera = new cam.Camera(webCamRef.current.video, {
-        onFrame: async () => {
-          await hands.send({ image: webCamRef.current.video });
+    if (isComponentMounted.current) {
+      let camera = null;
+      const hands = new Hands({
+        locateFile: (file) => {
+          return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
         },
-        width: 360,
-        height: 640,
       });
-      camera.start();
+
+      hands.setOptions({
+        maxNumHands: 1,
+        minDetectionConfidence: 0.75,
+        minTrackingConfidence: 0.7,
+      });
+
+      hands.onResults(onResults);
+
+      if (
+        typeof webCamRef.current !== "undefined" &&
+        webCamRef.current !== null
+      ) {
+        camera = new cam.Camera(webCamRef.current.video, {
+          onFrame: async () => {
+            await hands.send({ image: webCamRef.current.video });
+          },
+          width: 360,
+          height: 640,
+        });
+        camera.start();
+      }
     }
+    return () => {
+      isComponentMounted.current = false;
+    };
   }, []);
+
+  //   const loadCam = useCallback(() => {
+  //     let camera = null;
+  //     const hands = new Hands({
+  //       locateFile: (file) => {
+  //         return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+  //       },
+  //     });
+
+  //     hands.setOptions({
+  //       maxNumHands: 1,
+  //       minDetectionConfidence: 0.75,
+  //       minTrackingConfidence: 0.7,
+  //     });
+
+  //     hands.onResults(onResults);
+
+  //     if (
+  //       typeof webCamRef.current !== "undefined" &&
+  //       webCamRef.current !== null
+  //     ) {
+  //       camera = new cam.Camera(webCamRef.current.video, {
+  //         onFrame: async () => {
+  //           await hands.send({ image: webCamRef.current.video });
+  //         },
+  //         width: 360,
+  //         height: 640,
+  //       });
+  //       camera.start();
+  //     }
+  //   }, []);
 
   const gotoBack = useCallback(() => {
     webCamRef.current.video.pause();
