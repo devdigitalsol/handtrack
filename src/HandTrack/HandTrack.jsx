@@ -13,6 +13,11 @@ const HandTrack = () => {
   const canvasRef = useRef(null);
 
   let history = useHistory();
+  const videoConstraints = {
+    width: 360,
+    height: 640,
+    facingMode: "environment",
+  };
 
   const onResults = useCallback((results) => {
     let videoWidth = null;
@@ -89,6 +94,7 @@ const HandTrack = () => {
 
   const gotoBack = useCallback(() => {
     webCamRef.current.video.pause();
+    webCamRef.current.src = "";
     history.push("/");
   }, [webCamRef, history]);
 
@@ -98,6 +104,7 @@ const HandTrack = () => {
         <Webcam
           id="videoCam"
           ref={webCamRef}
+          videoConstraints={videoConstraints}
           style={{
             position: "absolute",
             marginRight: "auto",
