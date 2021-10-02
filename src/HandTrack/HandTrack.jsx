@@ -8,18 +8,38 @@ import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
 import { useHistory } from "react-router-dom";
 
 const HandTrack = () => {
-  const isComponentMounted = useRef(true);
+  const isComponentMounted = useRef({});
   const webCamRef = useRef(null);
   const canvasRef = useRef(null);
-
-  let history = useHistory();
-  const videoConstraints = {
+  const videoConstraints = useRef({
     width: 360,
     height: 640,
     facingMode: {
       exact: "environment",
     },
-  };
+  });
+  let currentStream;
+
+  let history = useHistory();
+
+  useEffect(() => {
+    if (typeof currentStream !== "undefined") {
+      stopMediaTracks(currentStream);
+    }
+    videoConstraints.current = {
+      width: 360,
+      height: 640,
+      facingMode: {
+        exact: "environment",
+      },
+    };
+  }, [currentStream]);
+
+  function stopMediaTracks(stream) {
+    stream.getTracks().forEach((track) => {
+      track.stop();
+    });
+  }
 
   const onResults = useCallback((results) => {
     let videoWidth = null;
